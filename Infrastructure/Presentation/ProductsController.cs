@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,39 +16,51 @@ namespace Presentation
         {
 
         [HttpGet]
-        //api/products
-        public async Task<IActionResult> GetAllProducts()
-            {
-            var result = await serviceManager.ProductService.GetAllProductsAsync();
-            if (result == null) return BadRequest();
+   
+        
+        public async Task<ActionResult<PaginationResponse<ProductResultDto>>> GetAllProducts([FromQuery] ProductSpecificationsParameters productSpecsParams)
+        {
+            var result = await serviceManager.ProductService.GetAllProductsAsync(productSpecsParams);
             return Ok(result);
-            }
+        }
+
 
         //api/products/1
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(int id)
-            {
-            var result = await serviceManager.ProductService.GetProductByIdAsync(id);
-            if (result == null) return NotFound($"Product with id: {id} not found");
-            return Ok(result);
-            }
+       
 
+        public async Task<ActionResult<ProductResultDto>> GetProductById(int id)
+        {
+            var result = await serviceManager.ProductService.GetProductByIdAsync(id);
+
+            if (result == null) throw new Exception("Not Found");
+
+            return Ok(result);
+        }
+
+
+        //api/products/brands
         [HttpGet("brands")]
-        public async Task<IActionResult> GetAllBrands()
-            {
+       
+
+        public async Task<ActionResult<BrandResultDto>> GetAllBrands()
+        {
             var result = await serviceManager.ProductService.GetAllBrandsAsync();
             if (result == null) return BadRequest();
             return Ok(result);
-            }
+        }
 
+
+        //api/products/types
         [HttpGet("types")]
-        public async Task<IActionResult> GetAllTypes()
-            {
+      
+
+        public async Task<ActionResult<TypeResultDto>> GetAllTypes()
+        {
             var result = await serviceManager.ProductService.GetAllTypesAsync();
             if (result == null) return BadRequest();
             return Ok(result);
-            }
-
-
         }
+
     }
+}
